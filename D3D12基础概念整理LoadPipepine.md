@@ -172,7 +172,41 @@ Descriptor Heaps 有助于组织和管理这些描述符，使得在渲染管线
 
 这种方法的好处是，它允许在每一帧中灵活地管理和更新所需的资源，同时防止资源的重复创建和销毁，提高了性能。这对于动态场景、动画和实时交互等情况非常有用。
 
+## Debug Layer
 
+在DirectX 12和其他一些图形API中，Debug Layer（调试层）是一个用于帮助开发人员识别和调试图形应用程序中潜在问题的工具。Debug Layer 提供了一系列检查和报告机制，能够捕获并报告应用程序中的潜在错误、性能问题和不良实践。
+
+在你提供的代码中，通过使用 `_DEBUG` 宏，开发者可以在调试模式下启用Debug Layer。以下是对代码的解释：
+
+```cpp
+#if defined(_DEBUG)
+    // 在调试模式下启用调试层
+    // 注意：在设备创建后启用调试层会使激活的设备失效。
+    {
+        ComPtr<ID3D12Debug> debugController;
+        if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController))))
+        {
+            debugController->EnableDebugLayer();
+
+            // 启用额外的调试层。
+            dxgiFactoryFlags |= DXGI_CREATE_FACTORY_DEBUG;
+        }
+    }
+#endif
+
+```
+
+1. 在调试模式下，尝试获取 `ID3D12Debug` 接口，这是用于启用Debug Layer的接口。
+2. 如果成功获取到 `ID3D12Debug` 接口，通过调用 `EnableDebugLayer` 方法启用调试层。
+3. 启用额外的调试层标志 `DXGI_CREATE_FACTORY_DEBUG`。这个标志用于在后续创建 DXGI 工厂时启用调试。
+
+启用Debug Layer后，将会在运行时捕获并输出调试信息，包括但不限于：
+
+- 错误消息：有关渲染调用中发生的错误的详细信息。
+- 警告消息：与不良实践或性能问题相关的警告。
+- 实时性能信息：关于GPU使用和渲染性能的信息。
+
+在开发和调试阶段，启用调试层是非常有用的，因为它有助于及早发现和解决潜在的问题。但在最终发布的版本中，通常会禁用调试层以提高性能。
 
 ## LoadPipepline全代码
 
